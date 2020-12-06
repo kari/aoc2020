@@ -5,3 +5,5 @@ answers = open("customs_answers.txt") do f
 end
 
 println(sum(map(answer -> length(unique(replace(answer, "\n" => ""))), answers)))
+
+println(sum(map(answer -> length(reduce(intersect, Set.(split(rstrip(answer), "\n")))), answers)))
