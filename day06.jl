@@ -1,9 +1,7 @@
-answer_pattern = r"(?:(?:[a-z])+\n?)+(?:\n\n|$)"ms
-
 answers = open("customs_answers.txt") do f
-    map(r -> r.match, eachmatch(answer_pattern, read(f, String)))
+    map(r -> split(rstrip(r.match), "\n"), eachmatch(r"(?:[^\n]+\n?)+(?:\n|$)", read(f, String)))
 end
 
-println(sum(map(answer -> length(unique(replace(answer, "\n" => ""))), answers)))
+println(sum(map(answer -> length(reduce(union, Set.(answer))), answers)))
 
-println(sum(map(answer -> length(reduce(intersect, Set.(split(rstrip(answer), "\n")))), answers)))
+println(sum(map(answer -> length(reduce(intersect, Set.(answer))), answers)))
