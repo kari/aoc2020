@@ -1,5 +1,5 @@
 answers = open("customs_answers.txt") do f
-    map(r -> split(rstrip(r.match), "\n"), eachmatch(r"(?:[^\n]+\n?)+(?:\n|$)", read(f, String)))
+    map(row -> split(row, "\n"), split(read(f, String), "\n\n"))
 end
 
 println(sum(map(answer -> length(reduce(union, Set.(answer))), answers)))
