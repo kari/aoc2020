@@ -47,7 +47,7 @@ function count_neighborhood(arr, x::Int64, y::Int64, c::Char)::Int64
     return n
 end
 
-function simulate(arr)
+function simulate_neighborhood(arr)
     step = deepcopy(arr)
 
     for y in 1:length(arr)
@@ -72,15 +72,18 @@ function simulate(arr)
     return step
 end
 
-state = seating
-i = 0
-while true
-    global i, state
-    i += 1
-    if state == simulate(state)
-        break
+function run_neighborhood(state)
+    i = 0
+    while true
+        i += 1
+        next_state = simulate_neighborhood(state)
+        if state == next_state
+            break
+        end
+        state = deepcopy(next_state)
     end
-    state = simulate(state)
+
+    return state    
 end
 
-println(sum(map(r -> count(x -> x == '#', r), state)))
+println(sum(map(r -> count(x -> x == '#', r), run_neighborhood(seating))))
