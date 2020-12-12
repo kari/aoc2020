@@ -1,5 +1,5 @@
 instructions = open("navigation_data.txt") do f
-    readlines(f)
+    map(r -> (r[1], parse(Int, r[2:end])), readlines(f))
 end
 
 function rotate(v::Vector{Int64}, a::Int64)::Vector{Int64}
@@ -13,10 +13,9 @@ end
 
 ship = [0, 0]
 direction = 0
-for i in instructions
+for (cmd, val) in instructions
     global ship, direction
 
-    cmd, val = i[1], parse(Int, i[2:end])
     if cmd == 'N'
         ship += [0, val]
     elseif cmd == 'E'
@@ -37,11 +36,10 @@ end
 println(sum(abs.(ship)))
 
 waypoint = [10, 1] # relative to ship
-ship = [0,0]
-for i in instructions
+ship = [0, 0]
+for (cmd, val) in instructions
     global ship, waypoint
 
-    cmd, val = i[1], parse(Int, i[2:end])
     if cmd == 'N'
         waypoint += [0, val]
     elseif cmd == 'E'
