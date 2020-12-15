@@ -3,34 +3,26 @@ starting_numbers = open("starting_numbers.txt") do f
 end
 
 function play_game(starting::Vector{Int64}, upto::Int64)::Int64
-    counts = Dict{Int64, Int64}()
     last_seen = Dict{Int64, Tuple{Int64, Int64}}()
     prev = starting[end]
     
     for (i, v) = enumerate(starting)
-        counts[v] = 1
-        last_seen[v] = (i, i)
+        last_seen[v] = (i, 0)
         # println("Turn $(i): $(v)")
     end
 
     for i in (length(starting)+1):upto
-        # if i % 1000000 == 0
-        #     println(i)
-        # end
-        if counts[prev] == 1
+        if last_seen[prev][2] == 0
             x = 0
         else
-            recent = last_seen[prev][2]
-            x = i-1-recent
+            x = i - 1 - last_seen[prev][2]
             # println("$(prev): $(i-1) - $(recent)")
         end
         # println("Turn $(i): $(x)")
-        if haskey(counts, x)
-            counts[x] += 1
+        if haskey(last_seen, x)
             last_seen[x] = (i, last_seen[x][1])
         else
-            counts[x] = 1
-            last_seen[x] = (i, i)
+            last_seen[x] = (i, 0)
         end
         prev = x
     end
@@ -47,5 +39,5 @@ end
 # println(play_game([3,2,1], 2020) == 438)
 # println(play_game([3,1,2], 2020) == 1836)
 
-println(play_game(starting_numbers, 2020))
-println(play_game(starting_numbers, 30000000))
+@time println(play_game(starting_numbers, 2020))
+@time println(play_game(starting_numbers, 30000000))
