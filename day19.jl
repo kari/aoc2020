@@ -8,10 +8,10 @@ rules, messages = open("rules.txt") do f
 end
 
 function compose(rule)
-    global rules, f
+    global rules
 
-    for m in reverse(collect(eachmatch(r"(\d+)", rule)))
-        rule = replace(rule, Regex("\\b"*m.match*"\\b") => "(" * compose(rules[parse(Int,m.match)]) * ")")
+    for m in reverse(collect(eachmatch(r"\b\d+\b", rule)))
+        rule = replace(rule, Regex("\\b" * m.match * "\\b") => "(" * compose(rules[parse(Int,m.match)]) * ")")
     end
 
     rule = replace(rule, "\"" => "")
@@ -21,5 +21,11 @@ function compose(rule)
     return rule
 end
 
-pattern = Regex("^" * clean(compose(rules[0])) * "\$")
+pattern = Regex("^" * compose(rules[0]) * "\$")
+println(count(x -> match(pattern, x) !== nothing, messages))
+
+rules[8] = "42+"
+rules[11] = "(?<n> 42 (?:(?&n))* 31)" 
+
+pattern = Regex("^" * compose(rules[0]) * "\$")
 println(count(x -> match(pattern, x) !== nothing, messages))
