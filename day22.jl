@@ -3,14 +3,10 @@ decks = open("cards.txt") do f
 end
 
 while minimum(map(d -> length(d), decks)) > 0
-    p1 = popfirst!(decks[1])
-    p2 = popfirst!(decks[2])
-    if p1 > p2
-        decks[1] = push!(decks[1], p1, p2)
-    else
-        decks[2] = push!(decks[2], p2, p1)       
-    end
-#    println(decks)
+    local winner
+    topcards = map(d -> popfirst!(d), decks)
+    winner = argmax(topcards)
+    decks[winner] = append!(decks[winner], winner == 1 ? topcards : reverse(topcards))
 end
 
 winner = argmax(map(d -> length(d), decks))
