@@ -9,20 +9,28 @@ end
 
 allergens = reduce(vcat, map(r -> r[2], data))
 ingredients = reduce(vcat, map(r -> r[1], data))
-# d = Dict([(i, count(x -> x == i, allergens)) for i in unique(allergens)])
-d = []
-for a in unique(allergens) # sort(unique(allergens); by=x->d[x], rev=true)
+
+ingredient_candidates = []
+for a in unique(allergens)
     i = intersect(map(r -> r[1], filter(r -> a in r[2], data))...)
-    # println(a => i)
-    # d[a] = i
-    push!(d, a => i)
+    push!(ingredient_candidates, a => i)
 end
-# println(d)
-# while !all(x -> length(x[2]) == 1, d)
-#     u = collect(Iterators.flatten(map(x -> x[2], filter(x -> length(x[2]) == 1, d))))
-# end
-d2 = Dict([(i, count(x -> x == i, ingredients)) for i in unique(ingredients)])
-for i in unique(Iterators.flatten(map(x -> x[2], d)))
-    delete!(d2, i)
+
+ingredient_counts = Dict([(i, count(x -> x == i, ingredients)) for i in unique(ingredients)])
+
+for i in unique(Iterators.flatten(map(x -> x[2], ingredient_candidates)))
+    delete!(ingredient_counts, i)
 end
-println(sum(values(d2)))
+println(sum(values(ingredient_counts)))
+
+while !all(x -> length(x[2]) == 1, ingredient_candidates)
+    solved = collect(Iterators.flatten(map(x -> x[2], filter(x -> length(x[2]) == 1, ingredient_candidates))))
+    for (idx, i) in enumerate(ingredient_candidates)
+        if length(i[2]) == 1 
+            continue
+        end
+        ingredient_candidates[idx] = i[1] => filter(x -> x ∉ solved, i[2])
+    end
+end
+
+println(join(map(x -> x[2][1], sort(ingredient_candidates, by=x -> x[1])),","))
