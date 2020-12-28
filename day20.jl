@@ -1,4 +1,4 @@
-tiles = open("image_tiles.txt") do f
+tiles = open("image_tiles_test.txt") do f
     map(m -> (parse(Int, m.captures[1]), hcat(map(r -> map(x -> x == '#' ? 1 : 0, collect(r)), split(strip(m.captures[2]), "\n"))...)), eachmatch(r"Tile (\d+):\n((?:[#\.]+\n)+)", read(f, String)))
 end
 
@@ -9,14 +9,11 @@ function parse_sides(arr)
     return s1, s2
 end
 
-# tile_dimensions = size(tiles[1][2]) # 10x10
-tiles = map(x -> (x[1], parse_sides(x[2])...), tiles)
-
 function find_corners(tiles)
     sides = []
-    for t in tiles
+    for t in map(x -> parse_sides(x[2]), tiles)        
+        append!(sides, t[1])
         append!(sides, t[2])
-        append!(sides, t[3])
     end
     counter = Dict()
     for s in sides
@@ -27,7 +24,7 @@ function find_corners(tiles)
         end
     end
 
-    corners = filter(tile -> count(s -> counter[s] == 1, tile[2])
+    corners = filter(tile -> count(s -> counter[s] == 1, parse_sides(tile[2])[1])
     == 2, tiles)
     
     return corners
