@@ -89,7 +89,19 @@ end
 
 function draw(tile::Tile)
     for i in 1:size(tile.data, 2)
-        println(join(map(x -> x == 1 ? "#" : ".", tile.data[:, i])))
+        println(join(map(x -> x == 1 ? "#" : ".", tile.data[i, :])))
+    end
+end
+
+function draw(image_map::Array{Tile,2})
+    for i in 1:size(image_map, 2)
+        for r in 1:size(image_map[1,1].data, 2)
+            for t in image_map[:, i]
+                print(join(map(x -> x == 1 ? "#" : ".", t.data[r, :])), " ")
+            end
+            println()
+        end
+        println()
     end
 end
 
@@ -150,6 +162,31 @@ function rotate_corner!(tile::Tile, tiles::Array{Tile,1})::Tile
     return tile
 end
 
+function find_monsters(tile::Tile)::Int64
+    monsters = 0
+    monster = [
+        "^..................#.",
+        "^#....##....##....###",
+        "^.#..#..#..#..#..#..."]
+    for r in 1:(size(tile.data, 1)-length(monster)+1)
+        for c in 1:(size(tile.data, 2)-length(monster[1]))
+            # println("($(r),$(c))")
+            if occursin(Regex(monster[1]), join(map(x -> x == 1 ? "#" : ".",tile.data[r,c:end])))
+                # println("head found")
+                if occursin(Regex(monster[2]), join(map(x -> x == 1 ? "#" : ".",tile.data[r+1,c:end])))
+                    # println("body found")
+                    if occursin(Regex(monster[3]), join(map(x -> x == 1 ? "#" : ".",tile.data[r+2,c:end])))
+                        # println("legs found")
+                        monsters += 1
+                    end
+                end
+            end
+        end
+    end
+
+    return monsters
+end
+
 left = nothing
 for x in 1:dim
     top = nothing
@@ -180,4 +217,37 @@ for x in 1:dim
         # println("$(length(tiles)) tiles left")
     end
 end
-image
+# println(image)
+# draw(image)
+
+# remove borders (strip sides)
+for i in eachindex(image)
+    image[i].data = image[i].data[2:end-1, 2:end-1]
+end
+# draw(image)
+# remove gaps (make one huge tile?)
+arr = []
+for i in 1:size(image, 2)
+    global arr
+    local row
+    for r in 1:size(image[1,1].data, 2)
+        row = []
+        for t in image[i, :]
+            row = vcat(row, t.data[:, r])
+        end
+        push!(arr, row)
+    end
+end
+image = Tile(0, hcat(arr...))
+
+monsters = 0
+for i in 1:4
+    global monsters, image
+    rotate!(image)
+    monsters = [find_monsters(image), find_monsters(flip_x(image)), find_monsters(flip_y(image)), find_monsters(flip_xy(image))]
+    if maximum(monsters) > 0
+        break
+    end    
+end
+
+println(sum(image.data) - 15*maximum(monsters))
